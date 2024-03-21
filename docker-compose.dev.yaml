@@ -1,10 +1,9 @@
-version: "3.7"
 services:
   db:
     image: ghcr.io/getzep/postgres:latest
     container_name: zep-postgres
-    restart: on-failure
-    shm_size: "128mb"  # Increase this if vacuuming fails with a "no space left on device" error
+    restart: always
+    shm_size: '128mb' # Increase this if vacuuming fails with a "no space left on device" error
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -14,18 +13,18 @@ services:
     networks:
       - zep-network
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      test: ['CMD', 'pg_isready', '-q', '-d', 'postgres', '-U', 'postgres']
       interval: 5s
       timeout: 5s
       retries: 5
     ports:
-      - "5432:5432"
+      - '5432:5432'
   nlp:
     image: ghcr.io/getzep/zep-nlp-server:latest
     container_name: zep-nlp
     env_file:
       - .env # You can set your embedding-related variables here
-    restart: on-failure
+    restart: always
     networks:
       - zep-network
     healthcheck:
@@ -35,18 +34,18 @@ services:
       retries: 5
       start_period: 30s
     ports:
-      - "5557:5557"
+      - '5557:5557'
   zep:
     image: ghcr.io/getzep/zep:latest
     container_name: zep
-    restart: on-failure
+    restart: always
     depends_on:
-        db:
-          condition: service_healthy
-        nlp:
-          condition: service_healthy
+      db:
+        condition: service_healthy
+      nlp:
+        condition: service_healthy
     ports:
-        - "8000:8000"
+      - '8000:8000'
     volumes:
       - ./config.yaml:/app/config.yaml
     environment:
